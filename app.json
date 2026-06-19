@@ -1,0 +1,9 @@
+{
+  "expo": {
+    "name": "Chronosfera",
+    "slug": "chronosfera-app",
+    "version": "1.0.0",
+    "scheme": "chronosfera",
+    "sdkVersion": "56.0.0"
+  }
+}
