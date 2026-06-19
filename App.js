@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+import { calculateMagnitude, calculateEntropyIndex, getStatus } from './utils/entropyCalculator';
 
 export default function App() {
   const [index, setIndex] = useState(0);
@@ -8,7 +9,6 @@ export default function App() {
   const [z, setZ] = useState(0);
 
   useEffect(() => {
-    // Simulador fluido para que la interfaz se vea viva al instante
     const interval = setInterval(() => {
       const newX = (Math.random() - 0.5) * 20;
       const newY = -35 + (Math.random() - 0.5) * 15;
@@ -18,20 +18,15 @@ export default function App() {
       setY(newY);
       setZ(newZ);
       
-      const magnitude = Math.sqrt(newX**2 + newY**2 + newZ**2);
-      setIndex(Math.min(100, magnitude * 1.5));
+      // Ahora usamos el módulo científico externo
+      const magnitude = calculateMagnitude(newX, newY, newZ);
+      setIndex(calculateEntropyIndex(magnitude));
     }, 1500);
 
     return () => clearInterval(interval);
   }, []);
 
-  const getStatus = () => {
-    if (index < 40) return { text: "Acoplamiento Entrópico Óptimo", color: "#22c55e" };
-    if (index < 70) return { text: "Flujo Disipativo Activo", color: "#eab308" };
-    return { text: "Perturbación - Ruido Termodinámico", color: "#ef4444" };
-  };
-
-  const status = getStatus();
+  const status = getStatus(index);
 
   return (
     <View style={styles.container}>

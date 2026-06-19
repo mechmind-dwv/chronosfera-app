@@ -1,0 +1,21 @@
+name: Validación Científica Automatizada (Tests)
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  test-physics-engine:
+    runs-on: ubuntu-latest
+    # Usamos Node 20 LTS para evitar el error de TerminalReporter de la v24
+    steps:
+    - uses: actions/checkout@v4
+    - name: Configurar Node.js 20 LTS
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+    - run: npm install --legacy-peer-deps
+    - run: npm test

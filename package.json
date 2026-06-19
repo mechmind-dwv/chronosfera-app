@@ -4,7 +4,8 @@
   "main": "App.js",
   "scripts": {
     "start": "expo start",
-    "android": "expo start --android"
+    "android": "expo start --android",
+    "test": "jest"
   },
   "dependencies": {
     "expo": "~54.0.0",
@@ -12,7 +13,8 @@
     "react-native": "0.74.3"
   },
   "devDependencies": {
-    "@babel/core": "^7.20.0"
+    "@babel/core": "^7.20.0",
+    "jest": "^30.4.2"
   },
   "private": true
 }
