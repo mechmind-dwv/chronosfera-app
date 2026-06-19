@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+// En React Native usamos importación de componentes
 import { calculateMagnitude, calculateEntropyIndex, getStatus } from './utils/entropyCalculator';
 
 export default function App() {
@@ -18,7 +19,6 @@ export default function App() {
       setY(newY);
       setZ(newZ);
       
-      // Ahora usamos el módulo científico externo
       const magnitude = calculateMagnitude(newX, newY, newZ);
       setIndex(calculateEntropyIndex(magnitude));
     }, 1500);
