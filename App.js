@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, ScrollView, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { StyleSheet, Text, View, ScrollView, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
 
+// ... (Mantenemos los cerebros matemáticos idénticos) ...
 const translateKpToBiology = (kp) => {
   if (!kp) return { state: "Cargando...", detail: "Conectando con la NOAA.", color: "#64748b" };
   if (kp <= 3) return { state: "Calma Solar", detail: "Acoplamiento entrópico óptimo.", color: "#22c55e" };
@@ -22,7 +23,10 @@ export default function App() {
   const [solarData, setSolarData] = useState(0);
   const [localData, setLocalData] = useState({ x: 0, y: 0, z: 0, val: 0, text: "Óptimo", color: "#22c55e" });
   const [isLoading, setIsLoading] = useState(true);
-  const [history, setHistory] = useState([]); // FASE 2: Historial de superposición
+  const [history, setHistory] = useState([]);
+  
+  // FASE 3: Estado para la Ciencia Ciudadana
+  const [reports, setReports] = useState([]);
 
   useEffect(() => {
     const fetchSolarPulse = async () => {
@@ -32,26 +36,18 @@ export default function App() {
         const newKp = data[1]?.kp?.[0] || 2;
         setSolarData(newKp);
         return newKp;
-      } catch { const simulatedKp = 2.5; setSolarData(simulatedKp); return simulatedKp; }
+      } catch { const s = 2.5; setSolarData(s); return s; }
     };
-    
     const initAndInterval = async () => {
       const initialKp = await fetchSolarPulse();
       setIsLoading(false);
-      // Guardar estado inicial
       setHistory([{ time: new Date().toLocaleTimeString(), kp: initialKp, local: 0 }]);
-      
       const interval = setInterval(async () => {
         const currentKp = await fetchSolarPulse();
-        setHistory(prev => {
-          const newEntry = { time: new Date().toLocaleTimeString(), kp: currentKp, local: localData.val };
-          const updated = [newEntry, ...prev].slice(0, 6); // Guardar últimas 6 lecturas
-          return updated;
-        });
-      }, 30000); // Actualizar historial cada 30s
+        setHistory(prev => [{ time: new Date().toLocaleTimeString(), kp: currentKp, local: localData.val }, ...prev].slice(0, 6));
+      }, 30000);
       return () => clearInterval(interval);
     };
-    
     initAndInterval();
   }, [localData.val]);
 
@@ -63,6 +59,18 @@ export default function App() {
     return () => clearInterval(int);
   }, []);
 
+  // FASE 3: Función para registrar síntomas
+  const logSymptom = (symptom) => {
+    const newReport = {
+      time: new Date().toLocaleTimeString(),
+      symptom: symptom,
+      kp: solarData,
+      sigma: localData.val
+    };
+    setReports(prev => [newReport, ...prev]);
+    Alert.alert("Registro Guardado", `Síntoma: ${symptom}\nCon Kp: ${solarData.toFixed(1)} y σ: ${localData.val.toFixed(1)}`);
+  };
+
   if (isLoading) return <View style={styles.centered}><ActivityIndicator size="large" color="#38bdf8" /></View>;
   const cosmicState = translateKpToBiology(solarData);
 
@@ -73,7 +81,7 @@ export default function App() {
         {activeTab === 1 && (
           <View>
             <Text style={styles.header}>CHRONOSFERA</Text>
-            <Text style={styles.subheader}>Fase 2: Sincronización NOAA Local</Text>
+            <Text style={styles.subheader}>Fase 3: Ciencia Ciudadana Activa</Text>
             
             <View style={[styles.card, { borderLeftColor: cosmicState.color }]}>
               <Text style={styles.cardTitle}>El Pulso de Chizhevsky (NOAA)</Text>
@@ -86,72 +94,50 @@ export default function App() {
               <View style={styles.row}><Text style={styles.bigData}>{localData.val.toFixed(1)}</Text><Text style={[styles.badge, { backgroundColor: localData.color + '20', color: localData.color }]}>{localData.text}</Text></View>
             </View>
 
-            {/* FASE 2: TABLA DE SUPERPOSICIÓN HISTÓRICA */}
+            {/* FASE 3: BOTONES DE REGISTRO CIUDADANO */}
             <View style={styles.card}>
-              <Text style={styles.cardTitle}>Historial de Superposición (Kp vs σ)</Text>
-              {history.length > 0 ? history.map((h, i) => (
+              <Text style={styles.cardTitle}>Reportar Estado Biológico (Chizhevsky)</Text>
+              <Text style={styles.bodyText}>¿Cómo siente la respuesta de su estructura disipativa al entorno actual?</Text>
+              <View style={styles.grid}>
+                <TouchableOpacity style={[styles.reportBtn, {backgroundColor:'#22c55e'}]} onPress={() => logSymptom("Óptimo")}><Text style={styles.btnText}>Óptimo</Text></TouchableOpacity>
+                <TouchableOpacity style={[styles.reportBtn, {backgroundColor:'#eab308'}]} onPress={() => logSymptom("Inquietud")}><Text style={styles.btnText}>Inquietud</Text></TouchableOpacity>
+                <TouchableOpacity style={[styles.reportBtn, {backgroundColor:'#f97316'}]} onPress={() => logSymptom("Fatiga")}><Text style={styles.btnText}>Fatiga</Text></TouchableOpacity>
+                <TouchableOpacity style={[styles.reportBtn, {backgroundColor:'#ef4444'}]} onPress={() => logSymptom("Cefalea/Estres")}><Text style={styles.btnText}>Cefalea</Text></TouchableOpacity>
+              </View>
+            </View>
+
+            {/* FASE 3: TABLA DE CORRELACIÓN ESTADÍSTICA */}
+            {reports.length > 0 && (
+              <View style={styles.card}>
+                <Text style={styles.cardTitle}>Base de Datos Local (Correlaciones)</Text>
+                {reports.map((r, i) => (
+                  <View key={i} style={styles.historyRow}>
+                    <Text style={styles.historyTime}>{r.time}</Text>
+                    <Text style={{color: '#f8fafc', fontSize: 11, flex: 1}}>{r.symptom}</Text>
+                    <Text style={styles.historyData}>Kp:{r.kp.toFixed(1)}</Text>
+                  </View>
+                ))}
+              </View>
+            )}
+
+            <View style={[styles.card, { borderLeftColor: '#334155' }]}>
+              <Text style={styles.cardTitle}>Historial Ambiental (Kp vs σ)</Text>
+              {history.map((h, i) => (
                 <View key={i} style={styles.historyRow}>
                   <Text style={styles.historyTime}>{h.time}</Text>
                   <Text style={styles.historyData}>Kp: {h.kp?.toFixed(1)}</Text>
                   <Text style={styles.historyData}>σ: {h.local.toFixed(1)}</Text>
                 </View>
-              )) : <Text style={styles.bodyText}>Recopilando datos...</Text>}
-            </View>
-
-            <View style={styles.synthesisCard}>
-              <Text style={styles.cardTitle}>Diagnóstico Fase 2</Text>
-              <Text style={styles.synthesisText}>
-                {solarData > 4 ? "⚠️ El entorno cósmico inyecta energía (Xi). Su biología aumentará la necesidad de disipar (Ji). Vigile fatiga o excitación." : "✅ Campo geomagnético estable. Estructura disipativa operando en su punto óptimo."}
-              </Text>
+              ))}
             </View>
           </View>
         )}
-
-        {activeTab === 2 && (
-          <View>
-            <Text style={styles.header}>GUÍA PARA EL PÚBLICO</Text>
-            <Text style={styles.subheader}>¿Qué significan estos números?</Text>
-            <View style={styles.card}><Text style={styles.h2}>1. El Indice Kp (Pulso Solar)</Text><Text style={styles.bodyText}>Mide la actividad de las tormentas geomagnéticas (0 a 9). Chizhevsky demostró que estos golpes alteran la conducta biológica.</Text></View>
-            <View style={styles.card}><Text style={styles.h2}>2. Los Micro-Teslas (µT) Locales</Text><Text style={styles.bodyText}>El campo de la Tierra mide unos 25 a 65 µT. Un aumento drástico indica "electropolución". Para la 4ª Ley, esto es ruido termodinámico.</Text></View>
-            <View style={styles.card}><Text style={styles.h2}>3. El Índice de Carga (0-100)</Text><Text style={styles.bodyText}>Verde (0-40) es acoplamiento eficiente. Rojo (>70) es entorno perturbado.</Text></View>
-          </View>
-        )}
-
-        {activeTab === 3 && (
-          <View>
-            <Text style={styles.header}>LA 4ª LEY Y EL MEPP</Text>
-            <Text style={styles.subheader}>Multifractalidad, Sincronización y Complejidad</Text>
-            <View style={styles.card}><Text style={styles.h2}>I. Introducción</Text><Text style={styles.bodyText}>La emergencia de estructuras complejas en sistemas abiertos parece contradecir la segunda ley. Esto motiva la búsqueda de una <Text style={styles.bold}>cuarta ley</Text>, asociada al <Text style={styles.bold}>Principio de Máxima Producción de Entropía (MEPP)</Text>(1)(2).</Text></View>
-            <View style={styles.card}><Text style={styles.h2}>II. Fundamentos y Entropía</Text><Text style={styles.bodyText}>La segunda ley afirma que la entropía total nunca disminuye. En biología, el orden local se compensa con un aumento mayor en el entorno, guiando la autoorganización(7)(8).</Text></View>
-            <View style={styles.card}><Text style={styles.h2}>III. El MEPP como Cuarta Ley</Text><Text style={styles.bodyText}>Propuesto por <Text style={styles.bold}>Rod Swenson</Text>, postula que los sistemas abiertos evolucionan hacia estados de máxima producción de entropía. La vida maximiza la disipación de gradientes(1)(10).</Text></View>
-            <View style={styles.card}><Text style={styles.h2}>IV. Sistemas Complejos</Text><Text style={styles.bodyText}><Text style={styles.bold}>Biología:</Text> Restricciones que contrarrestan la entropía. <Text style={styles.bold}>Ecología:</Text> Redes tróficas como disipadores. <Text style={styles.bold}>Tecnología:</Text> IA inspirada en autoorganización(15).</Text></View>
-            <View style={styles.card}><Text style={styles.h2}>V. Multifractalidad</Text><Text style={styles.bodyText}>Múltiples escalas de organización (ej. vasos sanguíneos). La <Text style={styles.bold}>sincronización multifractal</Text> alinea la complejidad entre subsistemas (cerebro, corazón). Disrupciones causan patologías(4)(5).</Text></View>
-            <View style={styles.card}><Text style={styles.refText}>Refs: (1)Swenson(2010), (3)Andrade(2023), (4)West(2024).</Text></View>
-          </View>
-        )}
-
-        {activeTab === 4 && (
-          <View>
-            <Text style={styles.header}>HELIBIOLOGÍA</Text>
-            <Text style={styles.subheader}>Chizhevsky y la Cronosfera</Text>
-            <View style={styles.card}><Text style={styles.h2}>Alexander Chizhevsky (1897-1964)</Text><Text style={styles.bodyText}>Padre de la Heliobiología. Demostró que tormentas geomagnéticas coinciden con epidemias y cambios masivos en la psique humana.</Text></View>
-            <View style={styles.card}><Text style={styles.h2}>Franz Halberg (1919-2013)</Text><Text style={styles.bodyText}>Padre de la Cronobiología. Descubrió que la biología está sincronizada con ciclos del entorno. Llamó a esto la "Cronosfera".</Text></View>
-          </View>
-        )}
-
-        {activeTab === 5 && (
-          <View>
-            <Text style={styles.header}>MANIFIESTO</Text>
-            <Text style={styles.h2} style={{textAlign:'center', color:'#38bdf8'}}>El Pulso de la Noósfera</Text>
-            <View style={styles.card}><Text style={styles.h2}>De la Marginalidad al Centro</Text><Text style={styles.bodyText}>Si aceptamos la Cuarta Ley, la vida es una cualidad física inevitable. Somos estructuras disipativas cuyo propósito es degradar gradientes de energía.</Text></View>
-            <View style={styles.card}><Text style={styles.h2}>Ecuación Fundamental</Text><Text style={styles.bodyText}>σ = Σ(Ji * Xi) ≥ 0. Traducimos la complejidad ambiental en un índice comprensible.</Text></View>
-            <View style={styles.synthesisCard}>
-              <Text style={styles.h2} style={{color:'#38bdf8'}}>Dirección Científica</Text>
-              <Text style={styles.bodyText} style={{fontWeight:'bold', color:'#ffffff', fontSize:16}}>Benjamin Cabeza Duran</Text>
-              <Text style={styles.bodyText} style={{fontStyle:'italic', marginTop:10}}>"En la acción de organizar, el universo no solo se disipa; se enriquece."</Text>
-            </View>
-          </View>
-        )}
+        
+        {activeTab === 2 && (<View><Text style={styles.header}>GUÍA</Text><View style={styles.card}><Text style={styles.bodyText}>Use la pestaña Monitor para registrar cómo se siente. Cruce esos datos con el Kp y el σ para validar la Heliobiología de Chizhevsky.</Text></View></View>)}
+        {activeTab === 3 && (<View><Text style={styles.header}>4ª LEY</Text><View style={styles.card}><Text style={styles.h2}>El MEPP</Text><Text style={styles.bodyText}>Los sistemas abiertos evolucionan hacia estados de máxima producción de entropía. La vida maximiza la disipación de gradientes energéticos.</Text></View></View>)}
+        {activeTab === 4 && (<View><Text style={styles.header}>HELIBIOLOGÍA</Text><View style={styles.card}><Text style={styles.h2}>Chizhevsky</Text><Text style={styles.bodyText}>Demostró que tormentas geomagnéticas coinciden con cambios masivos en la psique humana.</Text></View></View>)}
+        {activeTab === 5 && (<View><Text style={styles.header}>MANIFIESTO</Text><View style={styles.synthesisCard}><Text style={styles.h2} style={{color:'#38bdf8'}}>Dirección Científica</Text><Text style={styles.bodyText} style={{fontWeight:'bold', color:'#ffffff', fontSize:16}}>Benjamin Cabeza Duran</Text><Text style={styles.bodyText} style={{fontStyle:'italic', marginTop:10}}>"En la acción de organizar, el universo no solo se disipa; se enriquece."</Text></View></View>)}
+        
         <View style={{ height: 80 }} />
       </ScrollView>
 
@@ -181,7 +167,10 @@ const styles = StyleSheet.create({
   stateText: { fontSize: 18, fontWeight: '800', marginBottom: 10 },
   row: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 15 },
   badge: { paddingHorizontal: 12, paddingVertical: 4, borderRadius: 20, fontWeight: 'bold', fontSize: 12 },
-  // FASE 2: Estilos del Historial
+  // FASE 3: Estilos de la Ciencia Ciudadana
+  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginTop: 10 },
+  reportBtn: { paddingHorizontal: 15, paddingVertical: 10, borderRadius: 8, flex: 1, minWidth: '45%', alignItems: 'center' },
+  btnText: { color: '#0f172a', fontWeight: 'bold', fontSize: 12 },
   historyRow: { flexDirection: 'row', justifyContent: 'space-between', borderBottomWidth: 1, borderBottomColor: '#1e293b', paddingBottom: 8, marginBottom: 8 },
   historyTime: { color: '#64748b', fontSize: 12, width: 80 },
   historyData: { color: '#e2e8f0', fontSize: 12, fontWeight: 'bold' },
