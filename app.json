@@ -1,9 +1,10 @@
 {
-  "expo": {
-    "name": "Chronosfera",
-    "slug": "chronosfera-app",
-    "version": "1.0.0",
-    "scheme": "chronosfera",
-    "sdkVersion": "56.0.0"
+  "dependencies": {
+    "expo": "~50.0.0",
+    "expo-sensors": "~12.9.1",
+    "expo-status-bar": "~1.11.1",
+    "react": "18.2.0",
+    "react-native": "0.73.2",
+    "lucide-react-native": "*" 
   }
 }
