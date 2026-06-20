@@ -4,21 +4,15 @@
   "main": "App.js",
   "scripts": {
     "start": "expo start",
-    "android": "expo start --android",
-    "test": "jest"
+    "android": "expo start --android"
   },
   "dependencies": {
     "expo": "~54.0.0",
-    "expo-sensors": "~15.0.8",
-    "lucide-react-native": "^1.21.0",
     "react": "18.2.0",
     "react-native": "0.74.3"
   },
   "devDependencies": {
-    "@babel/core": "^7.20.0",
-    "@types/react": "~19.2.14",
-    "jest": "^30.4.2",
-    "typescript": "~6.0.3"
+    "@babel/core": "^7.20.0"
   },
   "private": true
 }
