@@ -1,9 +1,45 @@
-const calculateMagnitude = (x, y, z) => Math.sqrt(x ** 2 + y ** 2 + z ** 2);
-const calculateLocalEntropy = (x, y, z) => {
+const calculateMagnitude = (x = 0, y = 0, z = 0) => Math.sqrt(x ** 2 + y ** 2 + z ** 2);
+
+function calculateEntropyIndex(magnitude) {
+  const mag = Number(magnitude) || 0;
+  const idx = mag * 1.5;
+  return idx > 100 ? 100 : idx;
+}
+
+function getStatus(index) {
+  const i = Number(index) || 0;
+
+  if (i < 40) {
+    return {
+      text: "Acoplamiento Entrópico Óptimo",
+      color: "#22c55e",
+    };
+  }
+
+  if (i >= 40 && i <= 69) {
+    return {
+      text: "Flujo Disipativo Activo",
+      color: "#eab308",
+    };
+  }
+
+  return {
+    text: "Perturbación - Ruido Termodinámico",
+    color: "#ef4444",
+  };
+}
+
+// Backwards-compatible helper: keeps previous calculateLocalEntropy behavior
+function calculateLocalEntropy(x, y, z) {
   const magnitude = calculateMagnitude(x, y, z);
-  const val = Math.min(100, magnitude * 1.5);
-  if (val < 40) return { text: "Óptimo", color: "#22c55e", val };
-  if (val < 70) return { text: "Activo", color: "#eab308", val };
-  return { text: "Perturbado", color: "#ef4444", val };
+  const val = calculateEntropyIndex(magnitude);
+  const status = getStatus(val);
+  return { text: status.text, color: status.color, val };
+}
+
+module.exports = {
+  calculateMagnitude,
+  calculateEntropyIndex,
+  getStatus,
+  calculateLocalEntropy,
 };
-module.exports = { calculateLocalEntropy };
